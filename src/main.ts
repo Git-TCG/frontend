@@ -1,52 +1,48 @@
-import './style.css';
-type Card={id:string;name:string;grade:string;role:string;cost:number;attack:number;durability:number;ability?:{effect:string;amount:number}};
-type Row={id:string;name:string;url:string;owner_login:string;description:string|null;source:string;status:string|null;card:Card|null;grade:any;classification:any;reason:string|null};
-type Match={id:string;deadline:string;view:any;cards:Record<string,Card>;legal:any[]};
-const app=document.querySelector<HTMLDivElement>('#app')!;
-const state:{csrf:string;user:any;status:any;cards:Row[];deck:string[];trial:any;match:Match|null;queue:any;discovery:any;admin:any;page:string;error:string;busy:boolean;mulligan:Set<string>;detail:any}={csrf:'',user:null,status:null,cards:[],deck:[],trial:null,match:null,queue:null,discovery:null,admin:null,page:'home',error:'',busy:false,mulligan:new Set(),detail:null};
-const h=(s:any)=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]!));
-async function api(path:string,method='GET',body?:unknown){
- const res=await fetch('/api'+path,{method,headers:{'Content-Type':'application/json',...(method!=='GET'?{'X-CSRF-Token':state.csrf}:{})},body:body===undefined?undefined:JSON.stringify(body),credentials:'same-origin'});
- let data:any;try{data=await res.json();}catch{throw new Error(`서버 응답 오류 (${res.status})`);}
- if(!res.ok)throw new Error(data.error||data.message||`요청 실패 (${res.status})`);return data;
+import "./style.css";
+import { post } from "./api";
+import { mount, refreshMe, run, session, show, type Page } from "./app";
+import { h } from "./html";
+import { homePage } from "./pages/home";
+
+const PAGES: Record<string, Page> = {
+  home: homePage,
+};
+const NAV: [string, string][] = [["home", "시작"]];
+
+function pageName() {
+  const name = location.hash.replace(/^#\/?/, "") || "home";
+  return PAGES[name] ? name : "home";
 }
-async function refresh(){
- const me=await api('/me');state.user=me.user;state.csrf=me.csrf||'';
- if(state.user){const [status,col,deck,queue,discovery,trial]=await Promise.all([api('/status'),api('/collection'),api('/deck'),api('/queue'),api('/discovery'),api('/trial')]);state.status=status;state.cards=col.cards;state.deck=deck.repoIds.map(String);state.queue=queue;state.discovery=discovery;state.trial=trial;
-  if(queue.matchId&&!state.match)state.match=await api('/matches/'+queue.matchId);
- }render();
+
+function navigation() {
+  const me = session.me;
+  const active = pageName();
+  const links = NAV.filter(([name]) => name !== "admin" || me?.isAdmin)
+    .map(([name, label]) => `<a href="#/${name}" class="${name === active ? "active" : ""}">${label}</a>`)
+    .join("");
+  const account = me
+    ? `<span>${h(me.login)}</span> <button id="logout">로그아웃</button>`
+    : `<a class="button" href="/api/auth/github/start">GitHub로 로그인</a>`;
+  return `<header><strong>Repo TCG</strong><nav>${links}</nav><div class="account">${account}</div></header>`;
 }
-async function run(fn:()=>Promise<void>){if(state.busy)return;state.busy=true;state.error='';render();try{await fn();await refresh();}catch(e){state.error=e instanceof Error?e.message:'작업 오류';render();}finally{state.busy=false;render();}}
-function cardText(c?:Card|null){return c?`${h(c.name)} · ${h(c.grade)} · 비용 ${c.cost} · ${c.attack}/${c.durability} · ${h(c.ability?.effect||'능력 없음')}`:'분석 대기';}
-function nav(){return `<header><strong>Repo TCG</strong><nav>${[['home','시작'],['collection','컬렉션'],['deck','덱'],['match','대전'],['discovery','발견'],['admin','운영']].map(([id,label])=>`<button data-page="${id}" class="${state.page===id?'active':''}">${label}</button>`).join('')}</nav><span>${h(state.user?.login||'비로그인')}</span></header>`;}
-function home(){if(!state.user)return `<section><h1>GitHub Repo 카드 대전</h1><p>공개 Repo 분석, 원작자 표시, 공동 풀 등록 및 다른 사용자에게 카드 사본 발급에 관해 로그인 후 별도로 동의합니다.</p><a class="button" href="/api/auth/github/start">GitHub 로그인</a></section>`;
- const s=state.status;return `<section><h1>안녕하세요, ${h(state.user.login)}</h1>${!s?.consent?`<p>본인 소유 공개 Repo를 분석하고 카드 원본을 공용 풀 후보로 등록할 수 있습니다. 다른 사용자에게 원본 Repo의 카드 사본이 지급될 수 있습니다.</p><button data-action="consent">카드 이용 동의 및 수집 시작</button>`:`<p>수집 ${s.allocated?'완료':'진행 중'} · 보유 ${s.owned?.owned||0}장 · 분석 완료 ${s.owned?.ready||0}장 · 공용 풀 ${s.poolReady||0}장</p><button data-action="retry">수집·분석 재시도</button><button data-action="sync">새 Repo 동기화</button>${!s.canPlay?'<p>실제 카드 7장이 준비될 때까지 체험 덱 대전을 이용할 수 있습니다. 공용 풀이 부족하면 운영자의 실제 Repo 등록이 필요합니다.</p>':''}`}
- <ul>${(s?.jobs||[]).map((j:any)=>`<li>${h(j.kind)} #${j.id}: ${h(j.status)} ${h(j.last_error||'')}</li>`).join('')}</ul><button data-action="tutorial">튜토리얼 완료 보상 받기</button><button data-action="logout">로그아웃</button></section>`;}
-function collection(){return `<section><h1>컬렉션</h1>${state.cards.length?state.cards.map(r=>`<article><h3>${h(r.owner_login)}/${h(r.name)}</h3><p>${cardText(r.card)}</p><p>${h(r.source)} · ${h(r.status||'대기')} ${h(r.reason||'')}</p><a href="${h(r.url)}" target="_blank" rel="noopener noreferrer">GitHub 원본</a> <button data-detail="${h(r.id)}">버전·근거</button></article>`).join(''):'<p>아직 지급된 카드가 없습니다.</p>'}${state.detail?`<div id="detail"><h2>카드 상세</h2>${state.detail.versions.map((v:any)=>`<article>시즌 ${v.season_id} · ${cardText(v.card)}<pre>${h(JSON.stringify({grade:v.grade,classification:v.classification,reason:v.reason},null,2))}</pre></article>`).join('')}</div>`:''}</section>`;}
-function deck(){const ready=state.cards.filter(r=>r.status==='ready');return `<section><h1>내 덱</h1><p>실제 Repo 카드 중 서로 다른 7장을 선택하세요. 체험 덱은 보유 카드가 아닙니다.</p>${ready.map(r=>`<label class="choice"><input type="checkbox" data-deck="${h(r.id)}" ${state.deck.includes(String(r.id))?'checked':''}>${cardText(r.card)}</label>`).join('')}<p>선택 ${state.deck.length}/7</p><button data-action="saveDeck">덱 저장</button><h2>체험 덱</h2><p>${h(state.trial?.description||'')}</p>${(state.trial?.decks||[]).map((d:string[],i:number)=>`<article><h3>체험 덱 ${i+1}</h3>${d.map(id=>`<div>${cardText(state.trial.cards[id])}</div>`).join('')}</article>`).join('')}</section>`;}
-function unit(m:Match,p:number,l:number){const v=m.view,u=(p===v.you?v.me:v.opponent).field[l];return u?`<div class="unit"><strong>${cardText(m.cards[u.cardId])}</strong><small>내구 ${u.durability}/${u.maxDurability} ${u.canAttack?'공격 가능':''}</small></div>`:'<div class="empty">빈 칸</div>';}
-function actionLabel(a:any){switch(a.type){case'mulligan':return '시작 손패 확정';case'deploy':return `${a.lane+1}번 칸 배포: ${h(state.match?.cards[a.cardId]?.name||a.cardId)}${a.targetLane!==undefined?` → 적 ${a.targetLane+1}번`:''}`;case'beginCombat':return '전투 단계로';case'attack':return `${a.lane+1}번 칸 공격 → ${a.target.kind==='core'?'코어':`적 ${a.target.lane+1}번 칸`}`;case'scrap':return `${a.lane+1}번 칸 폐기`;case'endTurn':return '턴 종료';case'choose':return `탐색 선택: ${h(state.match?.cards[a.cardId]?.name||a.cardId)}`;default:return h(a.type);}}
-function match(){const m=state.match;if(!m)return `<section><h1>대전</h1><p>서버에서 상대를 찾아 1대1 경기를 시작합니다. 체험 덱은 가상 프로젝트입니다.</p><button data-action="queueTrial">체험 덱 대기열</button><button data-action="queueOwned">내 덱 대기열</button>${state.queue?.waiting?'<p>상대 대기 중…</p><button data-action="cancelQueue">대기 취소</button>':''}</section>`;
- const v=m.view,remaining=Math.max(0,Math.ceil((new Date(m.deadline).getTime()-Date.now())/1000));
- return `<section><h1>대전</h1><p>경기 ${h(m.id)} · ${v.result?`결과 ${h(JSON.stringify(v.result))}`:`턴 ${v.turn}, ${v.phase}, ${v.active===v.you?'내 차례':'상대 차례'}, ${remaining}초`} · 명령 ${v.seq}</p>
- <h2>상대 코어 ${v.opponent.core} · 손패 ${v.opponent.handCount}장 · 덱 ${v.opponent.deckCount}장</h2><div class="lanes">${[0,1,2].map(l=>unit(m,1-v.you,l)).join('')}</div>
- <h2>내 필드 · 코어 ${v.me.core} · 자원 ${v.me.resource}/${v.me.maxResource}</h2><div class="lanes">${[0,1,2].map(l=>unit(m,v.you,l)).join('')}</div>
- <h2>손패</h2><div class="hand">${v.me.hand.map((id:string)=>`<div>${cardText(m.cards[id])}${v.phase==='mulligan'&&!v.me.mulliganDone?`<label><input type="checkbox" data-mulligan="${h(id)}" ${state.mulligan.has(id)?'checked':''}> 교환</label>`:''}</div>`).join('')}</div>
- <h2>행동</h2><div class="actions">${v.phase==='mulligan'&&!v.me.mulliganDone?'<button data-action="mulligan">선택한 카드 교환</button>':m.legal.filter(a=>a.type!=='mulligan').map((a,i)=>`<button data-match-action="${i}">${actionLabel(a)}</button>`).join('')}${!v.result?'<button data-action="concede">항복</button>':''}</div>${v.result?'<button data-action="leaveMatch">대기열로 돌아가기</button>':''}</section>`;}
-function discovery(){const d=state.discovery;return `<section><h1>발견</h1><p>토큰 ${d?.tokens||0}개 · 외형 재화 ${d?.cosmetics||0}개</p><button data-action="discover">토큰 3개로 후보 열기</button>${d?.open?`<h2>저장된 후보</h2>${d.open.options.map((id:string)=>{const r=state.cards.find(x=>String(x.id)===String(id));return `<button data-choose="${h(id)}">${h(r?.name||`Repo #${id}`)} 선택</button>`;}).join('')}`:'<p>열린 발견이 없습니다.</p>'}</section>`;}
-function admin(){return `<section><h1>운영</h1><p>허용된 GitHub 계정만 사용할 수 있습니다. 실제 공개 Repo를 등록한 뒤 분석이 끝나면 공용 풀에 게시하세요.</p><form id="admin-form"><input name="url" type="url" placeholder="https://github.com/owner/repo" required><button>Repo 등록</button></form><button data-action="loadAdmin">공용 풀 조회</button><button data-action="prepareSeason">다음 시즌 준비</button><button data-action="publishSeason">준비된 시즌 게시</button>${(state.admin?.pool||[]).map((p:any)=>`<article>${h(p.name)} · ${h(p.status||'대기')} · ${p.active?'게시됨':'미게시'} ${h(p.reason||'')} ${!p.active&&p.status==='ready'?`<button data-publish="${h(p.id)}">게시</button>`:''}</article>`).join('')}</section>`;}
-function render(){app.innerHTML=nav()+`<main>${state.error?`<div class="error" role="alert">${h(state.error)}</div>`:''}${state.busy?'<p>처리 중…</p>':''}${({home,collection,deck,match,discovery,admin} as Record<string,()=>string>)[state.page]?.()||home()}</main>`;}
-async function command(action:any){if(!state.match)return;const m=state.match;const r=await api(`/matches/${m.id}/actions`,'POST',{commandId:crypto.randomUUID(),expectedSeq:m.view.seq,action});state.match=r;state.mulligan.clear();}
-app.addEventListener('change',e=>{const input=e.target as HTMLInputElement;if(input.dataset.deck){const id=input.dataset.deck;state.deck=input.checked?[...new Set([...state.deck,id])]:state.deck.filter(x=>x!==id);render();}if(input.dataset.mulligan){input.checked?state.mulligan.add(input.dataset.mulligan):state.mulligan.delete(input.dataset.mulligan);render();}});
-app.addEventListener('submit',e=>{if((e.target as HTMLElement).id==='admin-form'){e.preventDefault();const form=e.target as HTMLFormElement;run(async()=>{await api('/admin/repositories','POST',{url:(new FormData(form).get('url')||'').toString()});state.admin=await api('/admin/pool');});}});
-app.addEventListener('click',e=>{const b=(e.target as HTMLElement).closest('button') as HTMLButtonElement|null;if(!b)return;
- if(b.dataset.page){state.page=b.dataset.page;render();return;}
- if(b.dataset.detail)run(async()=>{state.detail=await api('/cards/'+b.dataset.detail);});
- if(b.dataset.matchAction){const a=state.match?.legal.filter(x=>x.type!=='mulligan')[Number(b.dataset.matchAction)];if(a)run(()=>command(a));}
- if(b.dataset.choose)run(async()=>{await api(`/discovery/${state.discovery.open.id}/choose`,'POST',{repoId:Number(b.dataset.choose)});});
- if(b.dataset.publish)run(async()=>{await api(`/admin/pool/${b.dataset.publish}/publish`,'POST');state.admin=await api('/admin/pool');});
- const actions:Record<string,()=>Promise<void>>={consent:async()=>{await api('/consent','POST');},retry:async()=>{await api('/status/retry','POST');},sync:async()=>{await api('/repos/sync','POST');},tutorial:async()=>{await api('/tutorial/complete','POST');},logout:async()=>{await api('/logout','POST');state.match=null;state.page='home';},saveDeck:async()=>{await api('/deck','PUT',{repoIds:state.deck.map(Number)});},queueTrial:async()=>{const r=await api('/queue','POST',{deck:'trial'});if(r.matchId)state.match=await api('/matches/'+r.matchId);},queueOwned:async()=>{const r=await api('/queue','POST',{deck:'owned'});if(r.matchId)state.match=await api('/matches/'+r.matchId);},cancelQueue:async()=>{await api('/queue','DELETE');},mulligan:async()=>{await command({type:'mulligan',cardIds:[...state.mulligan]});},concede:async()=>{await command({type:'concede'});},leaveMatch:async()=>{state.match=null;},discover:async()=>{await api('/discovery','POST');},loadAdmin:async()=>{state.admin=await api('/admin/pool');},prepareSeason:async()=>{await api('/admin/season/prepare','POST');},publishSeason:async()=>{await api('/admin/season','POST');}};
- if(b.dataset.action&&actions[b.dataset.action])run(actions[b.dataset.action]!);
+
+const root = document.querySelector<HTMLElement>("#app")!;
+mount(root, navigation);
+
+root.addEventListener("click", (ev) => {
+  if ((ev.target as HTMLElement).id !== "logout") return;
+  void run(async () => {
+    await post("/logout");
+    session.me = null;
+    location.hash = "#/home";
+  });
 });
-setInterval(async()=>{if(!state.user||state.busy)return;try{const q=await api('/queue');state.queue=q;if(q.matchId)state.match=await api('/matches/'+q.matchId);else if(state.match)state.match=await api('/matches/'+state.match.id);if(state.page==='home')state.status=await api('/status');render();}catch{/* next poll */}},3000);
-refresh().catch(e=>{state.error=e instanceof Error?e.message:'연결 오류';render();});
+
+window.addEventListener("hashchange", () => void show(PAGES[pageName()]!));
+
+void (async () => {
+  await refreshMe().catch(() => undefined);
+  await show(PAGES[pageName()]!);
+  // OAuth 콜백이 붙인 ?login=... 은 한 번 보여 준 뒤 주소에서 지운다.
+  if (location.search) history.replaceState(null, "", location.pathname + location.hash);
+})();
