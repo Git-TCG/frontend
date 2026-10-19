@@ -2,12 +2,29 @@ import "./style.css";
 import { post } from "./api";
 import { mount, refreshMe, run, session, show, type Page } from "./app";
 import { h } from "./html";
+import { adminPage } from "./pages/admin";
+import { collectionPage } from "./pages/collection";
+import { deckPage } from "./pages/deck";
+import { discoveryPage } from "./pages/discovery";
 import { homePage } from "./pages/home";
+import { playPage } from "./pages/play";
 
 const PAGES: Record<string, Page> = {
   home: homePage,
+  collection: collectionPage,
+  deck: deckPage,
+  play: playPage,
+  discovery: discoveryPage,
+  admin: adminPage,
 };
-const NAV: [string, string][] = [["home", "시작"]];
+const NAV: [string, string][] = [
+  ["home", "시작"],
+  ["collection", "컬렉션"],
+  ["deck", "덱"],
+  ["play", "대전"],
+  ["discovery", "발견"],
+  ["admin", "관리자"],
+];
 
 function pageName() {
   const name = location.hash.replace(/^#\/?/, "") || "home";
@@ -43,6 +60,5 @@ window.addEventListener("hashchange", () => void show(PAGES[pageName()]!));
 void (async () => {
   await refreshMe().catch(() => undefined);
   await show(PAGES[pageName()]!);
-  // OAuth 콜백이 붙인 ?login=... 은 한 번 보여 준 뒤 주소에서 지운다.
   if (location.search) history.replaceState(null, "", location.pathname + location.hash);
 })();
