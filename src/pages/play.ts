@@ -1,6 +1,7 @@
 import { api, del, post } from "../api";
 import { notify, render, type Page } from "../app";
 import { h } from "../html";
+import { uuidV4 } from "../uuid";
 
 interface MatchView {
   id: string;
@@ -216,7 +217,7 @@ export const playPage: Page = {
       const action = legal[Number(el.dataset.i)];
       if (!action) return;
       const next = await post<MatchView>(`/matches/${current.id}/actions`, {
-        commandId: crypto.randomUUID(),
+        commandId: uuidV4(),
         expectedSeq: current.view.seq,
         action,
       });
