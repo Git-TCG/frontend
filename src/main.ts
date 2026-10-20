@@ -9,6 +9,7 @@ import { discoveryPage } from "./pages/discovery";
 import { helpPage } from "./pages/help";
 import { homePage } from "./pages/home";
 import { playPage } from "./pages/play";
+import { settingsPage } from "./pages/settings";
 import { tutorialPage } from "./pages/tutorial";
 
 const PAGES: Record<string, Page> = {
@@ -19,6 +20,7 @@ const PAGES: Record<string, Page> = {
   discovery: discoveryPage,
   tutorial: tutorialPage,
   help: helpPage,
+  settings: settingsPage,
   admin: adminPage,
 };
 /** 메뉴. 세 번째 값이 true면 로그인해야 보인다. */
@@ -30,6 +32,7 @@ const NAV: [string, string, boolean][] = [
   ["discovery", "발견", true],
   ["tutorial", "튜토리얼", false],
   ["help", "도움말", false],
+  ["settings", "설정", true],
 ];
 
 function pageName() {
@@ -46,9 +49,9 @@ function navigation() {
     .map(([name, label]) => `<a href="#/${name}" class="${name === active ? "active" : ""}">${label}</a>`)
     .join("");
   const account = me
-    ? `<span class="who">${h(me.login)} · 토큰 ${me.tokens}</span> <button id="logout">로그아웃</button>`
+    ? `<span class="who">${me.avatarUrl ? `<img class="who-avatar" src="${h(me.avatarUrl)}" alt="" width="28" height="28"/>` : ""}<span>${h(me.login)} · 토큰 ${me.tokens}</span></span> <button id="logout">로그아웃</button>`
     : `<a class="button primary" href="/api/auth/github/start">GitHub로 로그인</a>`;
-  return `<header><a class="brand" href="#/home">Repo TCG</a><nav>${links}</nav><div class="account">${account}</div></header>`;
+  return `<header><a class="brand" href="#/home"><img class="brand-logo" src="/logo-light.svg" width="36" height="36" alt=""/>Repo TCG</a><nav>${links}</nav><div class="account">${account}</div></header>`;
 }
 
 const root = document.querySelector<HTMLElement>("#app")!;

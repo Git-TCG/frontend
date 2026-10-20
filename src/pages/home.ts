@@ -1,5 +1,6 @@
 import { api, post } from "../api";
 import { notify, refreshMe, render, session, type Page } from "../app";
+import { badgeSection, copyBadgeMarkdown } from "../badges";
 import { formatDate, h } from "../html";
 
 interface Status {
@@ -33,14 +34,15 @@ const JOB_STATUS: Record<string, string> = { queued: "대기", running: "진행 
 
 function loginView() {
   return `<section class="hero">
-    <h1>Repo TCG</h1>
+    <div class="hero-mark"><img src="/logo-dark.svg" width="52" height="52" alt=""/><h1>Repo TCG</h1></div>
     <p>내 GitHub 공개 Repo가 카드가 됩니다. 카드 7장으로 덱을 만들어 1대1로 대전하세요.</p>
     <div class="row">
       <a class="button primary" href="/api/auth/github/start">GitHub로 로그인</a>
       <a class="button" href="#/tutorial">규칙 먼저 보기</a>
     </div>
     <p class="muted">로그인하면 GitHub 계정 ID와 공개 프로필만 확인합니다. Repo 분석은 로그인한 뒤 따로 동의해야 시작합니다.</p>
-  </section>`;
+  </section>
+  ${badgeSection()}`;
 }
 
 interface Step {
@@ -201,14 +203,20 @@ export const homePage: Page = {
           ? `<div class="error">GitHub 로그인에 실패했습니다. 다시 시도하세요.</div>`
           : "";
     return `${loginMessage}<section>
-      <h1>${h(me.name ?? me.login)}님, 안녕하세요</h1>
+      <div class="hero-mark">${me.avatarUrl ? `<img src="${h(me.avatarUrl)}" alt="" width="52" height="52"/>` : `<img src="/logo-dark.svg" width="52" height="52" alt=""/>`}<h1>${h(me.name ?? me.login)}님, 안녕하세요</h1></div>
       <p>발견 토큰 <b>${me.tokens}</b>개 · 정상 대전 <b>${me.normalMatches}</b>회 · 외형 재화 ${me.cosmetics}개</p>
       <div class="row"><a class="button primary" href="#/play">바로 대전하기</a><a class="button" href="#/help">도움말</a></div>
     </section>
     ${checklist(status)}
-    ${me.consentAt ? (status ? jobsView(status) : "") : consentView()}`;
+    ${me.consentAt ? (status ? jobsView(status) : "") : consentView()}
+    ${badgeSection(me.login)}`;
   },
+  local: ["copyBadges"],
   actions: {
+    copyBadges: async () => {
+      await copyBadgeMarkdown(session.me?.login);
+      notify("README용 마크다운을 복사했습니다.");
+    },
     consent: async () => {
       await post("/consent");
       notify("동의했습니다. 내 Repo를 모아 카드로 만드는 중입니다. 이 화면이 자동으로 새로고침됩니다.");

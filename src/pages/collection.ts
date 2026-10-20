@@ -1,5 +1,6 @@
 import { api, post } from "../api";
-import { notify, type Page } from "../app";
+import { notify, session, type Page } from "../app";
+import { badgeSection, copyBadgeMarkdown } from "../badges";
 import { cardTile, type CardInfo } from "../cards";
 import { h } from "../html";
 
@@ -74,7 +75,7 @@ function detailView(versions: CardRow[]) {
     <div class="row"><h2>${h(v.card?.name ?? v.name)}</h2><button data-action="close">닫기</button></div>
     <p><a href="${h(v.url)}" target="_blank" rel="noopener">${h(v.full_name)}</a> · 원작자 ${h(v.owner_login)}</p>
     ${v.description ? `<p>${h(v.description)}</p>` : ""}
-    ${v.card ? cardTile({ ...v.card, abilityText: v.abilityText }) : ""}
+    ${v.card ? `<div class="demo">${cardTile({ ...v.card, abilityText: v.abilityText })}</div>` : ""}
     ${v.classification?.concept ? `<p class="muted">외형 콘셉트: ${h(v.classification.concept)}</p>` : ""}
     ${v.reason ? `<p class="warn">${h(v.reason)}</p>` : ""}
     ${v.owned && v.card && v.growth ? `<div class="growth-panel">
@@ -95,7 +96,6 @@ function detailView(versions: CardRow[]) {
 export const collectionPage: Page = {
   title: "컬렉션",
   requiresLogin: true,
-  local: ["close"],
   async load() {
     const r = await api<{ cards: CardRow[]; growthPoints: number }>("/collection");
     cards = r.cards;
@@ -127,9 +127,15 @@ export const collectionPage: Page = {
       <p>4턴 이상, 실제 행동을 한 대전에서 지급됩니다. 연습은 하루 3회까지 5 P, 정상 대전은 10 P (같은 상대 하루 3회). 승패와 관계없이 지급합니다.</p></div>
       <p>보유 ${cards.length}장 · 대전에 쓸 수 있는 카드 ${usable}장. 카드를 누르면 원본 Repo와 등급 계산을 볼 수 있습니다.</p>
       ${cards.length ? `<div class="cards">${tiles}</div>` : `<p>보유 카드가 없습니다. <a href="#/home">시작 화면</a>에서 카드 이용에 동의하세요.</p>`}
-    </section>`;
+    </section>
+    ${badgeSection(session.me?.login)}`;
   },
+  local: ["close", "copyBadges"],
   actions: {
+    copyBadges: async () => {
+      await copyBadgeMarkdown(session.me?.login);
+      notify("README용 마크다운을 복사했습니다.");
+    },
     upgrade: async (el) => {
       const result = await post<{ grade: string }>(`/cards/${el.dataset.id}/upgrade`, { expectedGrade: el.dataset.grade });
       notify(`${result.grade}등급으로 승급했습니다. 다음 대전부터 적용됩니다.`);

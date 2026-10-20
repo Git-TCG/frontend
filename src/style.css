@@ -1,5 +1,29 @@
+@font-face {
+  font-family: Pretendard;
+  src: url("/fonts/Pretendard-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: Pretendard;
+  src: url("/fonts/Pretendard-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: Pretendard;
+  src: url("/fonts/Pretendard-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: Pretendard;
+  src: url("/fonts/Pretendard-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
 :root {
-  font-family: system-ui, sans-serif;
+  font-family: Pretendard, system-ui, sans-serif;
   color: #1c272c;
   background: #f3f5f5;
 }
@@ -124,10 +148,50 @@ td {
   color: #fff;
   font-weight: bold;
   text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.brand-logo {
+  display: block;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #fff;
 }
 .who {
   color: #d6e6ea;
   font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.who-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: #123842;
+}
+.hero-mark {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin: 0 0 0.6rem;
+}
+.hero-mark h1 {
+  margin: 0;
+}
+.hero-mark img {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+.account {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
 }
 .busy {
   position: fixed;
@@ -599,6 +663,7 @@ button.card {
   font-weight: 700;
   text-align: left;
   overflow: hidden;
+  max-width: 13.5rem;
   transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 button.tcg {
@@ -966,4 +1031,23 @@ button.tcg {
 }
 .growth-panel p {
   margin: 0.4rem 0;
+}
+.badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin: 0.6rem 0;
+}
+.badge-row img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+.badge-md {
+  overflow: auto;
+  padding: 0.6rem;
+  background: #eef2f3;
+  border-radius: 4px;
+  font-size: 0.8rem;
 }
