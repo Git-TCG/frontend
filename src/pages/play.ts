@@ -258,6 +258,9 @@ function guide(): string {
   if (sel?.kind === "hand") return "초록색으로 표시된 내 빈 칸을 눌러 배치하세요. 다른 카드를 누르면 바꿀 수 있습니다.";
   if (sel?.kind === "deployTarget") return "이 카드의 능력이 영향을 줄 상대 프로젝트를 고르세요.";
   if (sel?.kind === "unit") {
+    if (!attacks(sel.lane).length) {
+      return "이 프로젝트는 이번 턴에 공격할 수 없습니다(배치한 턴이거나 이미 공격함). 칸을 비우려면 [폐기]를 누르세요.";
+    }
     const hasCore = attacks(sel.lane).some((a) => a.target.kind === "core");
     return hasCore
       ? "상대 필드가 비었습니다. 상대 코어를 눌러 공격하세요."

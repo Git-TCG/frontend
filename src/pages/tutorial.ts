@@ -29,8 +29,8 @@ const STEPS: Step[] = [
       grade: "B",
       role: "support",
       cost: 2,
-      attack: 1,
-      durability: 3,
+      attack: 2,
+      durability: 2,
       ability: { effect: "repair", amount: 1 },
       abilityText: "내 턴 종료 시: 인접 아군 중 가장 많이 손상된 하나의 내구도를 1 회복한다.",
     })}</div>
