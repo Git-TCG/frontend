@@ -10,7 +10,7 @@ export interface CardInfo {
   durability: number;
   ability?: { effect: string; amount: number } | null;
   abilityText?: string | null;
-  source?: { fullName: string; url: string; owner: string };
+  source?: { repoId?: number; fullName: string; url: string; owner: string };
   concept?: string;
 }
 
@@ -48,11 +48,12 @@ export const ABILITY_NAME: Record<string, string> = {
   explode: "폭발",
 };
 
-export const GRADE_HINT = "등급은 Stars·Forks·활동·협업·릴리스로 정합니다. 높을수록 비용과 능력이 큽니다.";
+export const GRADE_HINT = "기본 등급은 Repo 공개 지표로 정합니다. 대전으로 포인트를 모아 승급할 수 있습니다.";
 const GRADE_STARS: Record<string, number> = { C: 1, B: 2, A: 3, S: 4, SS: 5 };
 
 export function cardImageUrl(card: CardInfo): string | null {
-  return card.id ? `/api/card-images/${encodeURIComponent(card.id)}` : null;
+  const id = card.source?.repoId ?? card.id;
+  return id ? `/api/card-images/${encodeURIComponent(id)}` : null;
 }
 
 export interface TileOptions {

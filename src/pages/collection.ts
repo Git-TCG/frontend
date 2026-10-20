@@ -1,5 +1,5 @@
-import { api } from "../api";
-import { type Page } from "../app";
+import { api, post } from "../api";
+import { notify, type Page } from "../app";
 import { cardTile, type CardInfo } from "../cards";
 import { h } from "../html";
 
@@ -26,9 +26,12 @@ interface CardRow {
   abilityText: string | null;
   reason: string | null;
   season_id?: number;
+  owned?: boolean;
+  growth?: { baseGrade: string; nextGrade: string | null; cost: number };
 }
 
 let cards: CardRow[] = [];
+let growthPoints = 0;
 let detail: CardRow[] | null = null;
 
 const STATUS: Record<string, string> = { ready: "사용 가능", pending: "분석 보류", error: "분석 실패" };
@@ -74,7 +77,14 @@ function detailView(versions: CardRow[]) {
     ${v.card ? cardTile({ ...v.card, abilityText: v.abilityText }) : ""}
     ${v.classification?.concept ? `<p class="muted">외형 콘셉트: ${h(v.classification.concept)}</p>` : ""}
     ${v.reason ? `<p class="warn">${h(v.reason)}</p>` : ""}
-    <h3>등급 계산</h3>
+    ${v.owned && v.card && v.growth ? `<div class="growth-panel">
+      <h3>카드 승급 · ${h(v.card.grade)} → ${h(v.growth.nextGrade ?? "최고 등급")}</h3>
+      <p>보유 ${growthPoints} P · 기본 등급 ${h(v.growth.baseGrade)}</p>
+      ${v.growth.nextGrade ? `<p>승급 시 능력치와 배치 비용이 함께 오릅니다. 진행 중인 대전에는 영향을 주지 않습니다.</p>
+      <button class="primary" data-action="upgrade" data-id="${v.id}" data-grade="${h(v.card.grade)}" ${growthPoints < v.growth.cost ? "disabled" : ""}>${v.growth.cost} P로 ${h(v.growth.nextGrade)} 승급</button>
+      ${growthPoints < v.growth.cost ? `<p>${v.growth.cost - growthPoints} P 더 필요합니다.</p>` : ""}` : "<p>최고 등급 SS에 도달했습니다.</p>"}
+    </div>` : ""}
+    <h3>기본 등급 계산</h3>
     <p class="muted">등급은 코드 품질이 아니라 공개 지표로 정합니다. C 0~20 · B 20~40 · A 40~60 · S 60~80 · SS 80~100</p>
     ${breakdown || "<p>아직 계산되지 않았습니다.</p>"}
     ${evidence}
@@ -87,8 +97,10 @@ export const collectionPage: Page = {
   requiresLogin: true,
   local: ["close"],
   async load() {
-    const r = await api<{ cards: CardRow[] }>("/collection");
+    const r = await api<{ cards: CardRow[]; growthPoints: number }>("/collection");
     cards = r.cards;
+    growthPoints = r.growthPoints;
+    if (detail) detail = (await api<{ versions: CardRow[] }>(`/cards/${detail[0]!.id}`)).versions;
   },
   view() {
     const usable = cards.filter((c) => c.status === "ready").length;
@@ -110,11 +122,18 @@ export const collectionPage: Page = {
       .join("");
     return `${detail ? detailView(detail) : ""}<section>
       <h1>컬렉션</h1>
+      <div class="growth-panel"><b>성장 포인트 ${growthPoints} P</b>
+      <p>카드를 눌러 승급하세요. C → B 50 P · B → A 100 P · A → S 150 P · S → SS 200 P</p>
+      <p>4턴 이상, 실제 행동을 한 대전에서 지급됩니다. 연습은 하루 3회까지 5 P, 정상 대전은 10 P (같은 상대 하루 3회). 승패와 관계없이 지급합니다.</p></div>
       <p>보유 ${cards.length}장 · 대전에 쓸 수 있는 카드 ${usable}장. 카드를 누르면 원본 Repo와 등급 계산을 볼 수 있습니다.</p>
       ${cards.length ? `<div class="cards">${tiles}</div>` : `<p>보유 카드가 없습니다. <a href="#/home">시작 화면</a>에서 카드 이용에 동의하세요.</p>`}
     </section>`;
   },
   actions: {
+    upgrade: async (el) => {
+      const result = await post<{ grade: string }>(`/cards/${el.dataset.id}/upgrade`, { expectedGrade: el.dataset.grade });
+      notify(`${result.grade}등급으로 승급했습니다. 다음 대전부터 적용됩니다.`);
+    },
     detail: async (el) => {
       const r = await api<{ versions: CardRow[] }>(`/cards/${el.dataset.id}`);
       detail = r.versions;

@@ -577,6 +577,13 @@ button.card {
   --frame-a: #6b7f86;
   --frame-b: #b7c4c8;
   --ink: #1d2a2f;
+  --name-bar: linear-gradient(#fbf6e6, #ece2c3);
+  --art-border: #e9dcae;
+  --type-bg: rgba(255, 255, 255, 0.75);
+  --panel: #fbf8ef;
+  --panel-border: rgba(0, 0, 0, 0.25);
+  --flavor: #6a5f45;
+  --flavor-line: #e3dcc6;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -588,7 +595,8 @@ button.card {
   background: linear-gradient(155deg, var(--frame-a), var(--frame-b));
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25), inset 0 0 0 2px rgba(255, 255, 255, 0.25);
   color: var(--ink);
-  font: inherit;
+  font-family: CardCustom, "Stellar Serif", Palatino, "Palatino Linotype", serif;
+  font-weight: 700;
   text-align: left;
   overflow: hidden;
   transition: transform 0.12s ease, box-shadow 0.12s ease;
@@ -622,12 +630,12 @@ button.tcg {
   gap: 6px;
   padding: 3px 4px 3px 8px;
   border-radius: 6px;
-  background: linear-gradient(#fbf6e6, #ece2c3);
+  background: var(--name-bar);
   border: 1px solid rgba(0, 0, 0, 0.3);
 }
 .tcg-name {
   flex: 1;
-  font-weight: 800;
+  font-weight: 700;
   font-size: 0.92rem;
   white-space: nowrap;
   overflow: hidden;
@@ -651,7 +659,7 @@ button.tcg {
   display: block;
   aspect-ratio: 4 / 3;
   border-radius: 4px;
-  border: 3px solid #e9dcae;
+  border: 3px solid var(--art-border);
   outline: 1px solid rgba(0, 0, 0, 0.4);
   overflow: hidden;
   background: radial-gradient(circle at 50% 40%, rgba(255, 255, 255, 0.55), transparent 60%),
@@ -692,7 +700,7 @@ button.tcg {
   font-weight: 700;
   padding: 1px 6px;
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.75);
+  background: var(--type-bg);
 }
 .tcg-text {
   flex: 1;
@@ -702,8 +710,8 @@ button.tcg {
   min-height: 4.2rem;
   padding: 5px 6px;
   border-radius: 4px;
-  background: #fbf8ef;
-  border: 1px solid rgba(0, 0, 0, 0.25);
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
   font-size: 0.74rem;
   line-height: 1.35;
 }
@@ -712,9 +720,9 @@ button.tcg {
 }
 .tcg-flavor {
   margin-top: auto;
-  color: #6a5f45;
+  color: var(--flavor);
   font-size: 0.68rem;
-  border-top: 1px solid #e3dcc6;
+  border-top: 1px solid var(--flavor-line);
   padding-top: 2px;
 }
 .tcg-stats {
@@ -766,6 +774,85 @@ button.tcg {
   background: #c0392b;
   border-radius: 4px;
 }
+/* 등급별 이름줄·종류줄·설명칸 색과 간격. 레이아웃 구조는 그대로다. */
+.tcg.grade-C {
+  --name-bar: linear-gradient(#f3f0e8, #ddd6c6);
+  --art-border: #cfc6b0;
+  --type-bg: #ebe6da;
+  --panel: #f4f1e8;
+  --panel-border: #c8bfaa;
+}
+.tcg.grade-B {
+  --name-bar: linear-gradient(#f3f7fa, #d5dee6);
+  --art-border: #b7c6d0;
+  --type-bg: #e4edf3;
+  --panel: #eef3f7;
+  --panel-border: #8aa0ad;
+}
+.tcg.grade-B .tcg-type {
+  border-left: 3px solid #7d93a0;
+}
+.tcg.grade-A {
+  --name-bar: linear-gradient(#fff6d8, #e4c56a);
+  --art-border: #d4b056;
+  --type-bg: #f3e3b3;
+  --panel: #f6ead0;
+  --panel-border: #c9a14a;
+}
+.tcg.grade-A .tcg-head {
+  border-color: #c9a14a;
+}
+.tcg.grade-A .tcg-text {
+  padding: 6px 8px;
+}
+.tcg.grade-S {
+  --ink: #f4ead0;
+  --name-bar: linear-gradient(#3d3424, #1c1812);
+  --art-border: #f0d27a;
+  --type-bg: #2a2418;
+  --panel: #1e2430;
+  --panel-border: #e0c36a;
+  --flavor: #cbb98a;
+  --flavor-line: #4a4030;
+}
+.tcg.grade-S .tcg-head,
+.tcg.grade-S .tcg-type {
+  border-color: #e0c36a;
+}
+.tcg.grade-S .tcg-stats {
+  background: rgba(32, 26, 16, 0.85);
+  color: #f4ead0;
+}
+.tcg.grade-S .tcg-atk {
+  color: #ffb7aa;
+}
+.tcg.grade-S .tcg-def {
+  color: #b8e1ff;
+}
+.tcg.grade-SS {
+  --ink: #2a1d08;
+  --name-bar: linear-gradient(#fff4c4, #f0c24a 55%, #c99220);
+  --art-border: #f2c94c;
+  --type-bg: #ffe9a0;
+  --panel: #fff3cc;
+  --panel-border: #c99220;
+  --flavor: #7a5a18;
+  --flavor-line: #e0b84a;
+  border-color: #f2c94c;
+  box-shadow: 0 0 10px rgba(242, 201, 76, 0.8), inset 0 0 0 2px rgba(255, 255, 255, 0.35);
+}
+.tcg.grade-SS .tcg-head {
+  border-color: #c99220;
+  padding: 4px 6px 4px 10px;
+}
+.tcg.grade-SS .tcg-text {
+  padding: 7px 8px;
+  box-shadow: inset 0 0 0 1px rgba(201, 146, 32, 0.45);
+}
+.tcg.grade-SS .tcg-stats {
+  background: linear-gradient(#fff6d0, #efc96a);
+}
+
 /* S 이상은 반짝이는 홀로그램 */
 .tcg.grade-S::after,
 .tcg.grade-SS::after {
@@ -777,10 +864,6 @@ button.tcg {
   background-size: 250% 250%;
   animation: holo 4s linear infinite;
   mix-blend-mode: overlay;
-}
-.tcg.grade-SS {
-  border-color: #f2c94c;
-  box-shadow: 0 0 10px rgba(242, 201, 76, 0.8), inset 0 0 0 2px rgba(255, 255, 255, 0.35);
 }
 @keyframes holo {
   from {
@@ -872,4 +955,15 @@ button.tcg {
 .slot > .tcg.compact {
   flex: 0 1 12.5rem;
   max-width: 12.5rem;
+}
+
+.growth-panel {
+  padding: 0.75rem 1rem;
+  margin: 0.75rem 0;
+  border: 1px solid #9eafb5;
+  border-radius: 6px;
+  background: #f4f8f9;
+}
+.growth-panel p {
+  margin: 0.4rem 0;
 }

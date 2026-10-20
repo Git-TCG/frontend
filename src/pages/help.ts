@@ -29,6 +29,7 @@ export const helpPage: Page = {
         <a href="#/help" data-scroll="h-rules">대전 규칙</a>
         <a href="#/help" data-scroll="h-attack">공격 대상</a>
         <a href="#/help" data-scroll="h-abilities">능력 목록</a>
+        <a href="#/help" data-scroll="h-growth">카드 성장</a>
         <a href="#/help" data-scroll="h-cards">카드와 등급</a>
         <a href="#/help" data-scroll="h-rewards">보상</a>
         <a href="#/help" data-scroll="h-faq">자주 묻는 질문</a>
@@ -72,13 +73,16 @@ export const helpPage: Page = {
         ${ABILITIES.map(([when, name, text]) => `<tr><td>${when}</td><td>${name}</td><td>${text}</td></tr>`).join("")}
       </table>
 
+      <h2 id="h-growth">카드 성장과 승급</h2>
+      <p>실제 행동을 하고 4턴 이상 진행한 대전을 마치면 성장 포인트를 받습니다. 연습 대전은 하루 3회까지 5 P, 정상 대전은 10 P를 지급합니다. 정상 대전은 두 사람 모두 실제 행동을 해야 하며 같은 상대는 하루 3회까지 인정합니다. 체험 덱으로도 모을 수 있고 승패와 무관합니다.</p>
+      <p>컬렉션에서 보유 카드를 눌러 승급하세요. C → B는 50 P, B → A는 100 P, A → S는 150 P, S → SS는 200 P입니다. 포인트는 차감되며 승급하면 배치 비용도 함께 오릅니다. 승급한 등급은 다음 시즌에도 최소 등급으로 유지됩니다.</p>
       <h2 id="h-cards">카드와 등급</h2>
       <ul>
         <li>Repo 하나가 카드 하나입니다. Fork·빈 Repo·프로필 Repo는 제외합니다.</li>
         <li><b>등급</b>(C·B·A·S·SS)은 코드 품질 평가가 아닙니다. Stars, Forks, 최근 12개월 활동, 기여자 수, 릴리스로 계산합니다.</li>
         <li><b>비용</b>은 등급으로 정해집니다(C=1 … SS=5). 등급이 높으면 강하지만 늦게 낼 수 있습니다.</li>
         <li><b>역할</b>(공격·방어·지원·제어·탐색)과 능력은 Repo 내용을 AI가 분류해 정하고, 수치는 서버의 고정 표로 정합니다.</li>
-        <li>같은 시즌에는 같은 카드의 수치가 모두 같습니다. 시즌이 바뀌면 등급이 오르거나 내릴 수 있습니다.</li>
+        <li>기본 수치는 시즌별로 정해집니다. 성장 포인트로 승급한 내 카드는 더 높은 등급을 적용하며, 진행 중인 대전의 수치는 고정됩니다.</li>
       </ul>
 
       <h2 id="h-rewards">보상</h2>
