@@ -1,5 +1,6 @@
 import { post } from "../api";
 import { session, type Page } from "../app";
+import { cardTile } from "../cards";
 
 interface Step {
   title: string;
@@ -22,13 +23,21 @@ const STEPS: Step[] = [
   },
   {
     title: "2. 카드 읽는 법",
-    body: `<div class="card demo"><span class="card-top"><span class="cost">2</span><span class="grade">B</span><span class="role">지원</span></span>
-        <span class="card-name">기록 보관소</span><span class="stats">공격 1 · 내구 3</span>
-        <span class="ability">내 턴 종료 시: 인접 아군 중 가장 많이 손상된 하나의 내구도를 1 회복한다.</span></div>
+    body: `<div class="demo">${cardTile({
+      id: "sample-04",
+      name: "기록 보관소",
+      grade: "B",
+      role: "support",
+      cost: 2,
+      attack: 1,
+      durability: 3,
+      ability: { effect: "repair", amount: 1 },
+      abilityText: "내 턴 종료 시: 인접 아군 중 가장 많이 손상된 하나의 내구도를 1 회복한다.",
+    })}</div>
       <ul>
-        <li><b>왼쪽 위 숫자</b>: 배치 비용. 이만큼 자원을 씁니다.</li>
-        <li><b>등급(C~SS)</b>: Repo의 Stars·Forks·활동으로 정해집니다. 높을수록 비싸고 강합니다.</li>
-        <li><b>공격</b>: 공격할 때 주는 피해. <b>내구</b>: 받을 수 있는 피해. 0이 되면 파괴됩니다.</li>
+        <li><b>오른쪽 위 동그라미 숫자</b>: 배치 비용. 이만큼 자원을 씁니다.</li>
+        <li><b>별과 등급(C~SS)</b>: Repo의 Stars·Forks·활동으로 정해집니다. 높을수록 비싸고 강합니다. 테두리 색은 역할(공격·방어·지원·제어·탐색)입니다.</li>
+        <li><b>ATK</b>(공격력): 공격할 때 주는 피해. <b>DEF</b>(내구도): 받을 수 있는 피해. 0이 되면 파괴됩니다.</li>
         <li><b>능력</b>: 카드마다 하나. 언제 발동하는지(배치 시, 턴 종료 시 등)가 앞에 적혀 있습니다.</li>
       </ul>`,
   },

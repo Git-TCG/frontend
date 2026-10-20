@@ -1,5 +1,6 @@
 import { api, post } from "../api";
 import { notify, type Page } from "../app";
+import { cardTile, type CardInfo } from "../cards";
 import { h } from "../html";
 
 interface DiscoveryState {
@@ -10,8 +11,13 @@ interface DiscoveryState {
 }
 
 let state: DiscoveryState | null = null;
-let optionCards: Record<number, { name: string; full_name: string; card: { name: string; grade: string } | null }> =
-  {};
+interface Option {
+  name: string;
+  full_name: string;
+  card: CardInfo | null;
+  abilityText?: string | null;
+}
+let optionCards: Record<number, Option> = {};
 
 export const discoveryPage: Page = {
   title: "발견",
@@ -22,9 +28,7 @@ export const discoveryPage: Page = {
     if (state?.open) {
       for (const id of state.open.options) {
         try {
-          const detail = await api<{ versions: { name: string; full_name: string; card: { name: string; grade: string } | null }[] }>(
-            `/cards/${id}`,
-          );
+          const detail = await api<{ versions: Option[] }>(`/cards/${id}`);
           optionCards[id] = detail.versions[0] ?? { name: String(id), full_name: String(id), card: null };
         } catch {
           optionCards[id] = { name: String(id), full_name: String(id), card: null };
@@ -38,16 +42,23 @@ export const discoveryPage: Page = {
       ? `<div>
           <h2>후보 선택</h2>
           <p>아래 후보 중 1장을 고르세요. 고르기 전에는 새 후보를 뽑을 수 없습니다.</p>
-          ${state.open.options
+          <div class="cards">${state.open.options
             .map((id) => {
               const c = optionCards[id];
-              const title = c?.card?.name ?? c?.name ?? String(id);
-              return `<div class="row">
-                <button data-action="choose" data-id="${id}">${h(title)} (${h(c?.card?.grade ?? "?")})</button>
-                <small>${h(c?.full_name ?? "")}</small>
-              </div>`;
+              if (c?.card) {
+                return cardTile(
+                  { ...c.card, abilityText: c.abilityText ?? c.card.abilityText },
+                  { action: "choose", data: { id }, className: "playable", note: "눌러서 이 카드 받기" },
+                );
+              }
+              // 아직 분석 전인 내 Repo 후보는 받은 뒤에 카드가 만들어진다.
+              return `<button type="button" class="tcg pending playable" data-action="choose" data-id="${id}">
+                <span class="tcg-head"><span class="tcg-name">${h(c?.full_name ?? `Repo #${id}`)}</span></span>
+                <span class="tcg-art"><span class="tcg-art-fallback">?</span></span>
+                <span class="tcg-text"><span class="tcg-ability">받으면 카드 분석을 시작합니다.</span></span>
+                <span class="tcg-note">눌러서 이 카드 받기</span></button>`;
             })
-            .join("")}
+            .join("")}</div>
         </div>`
       : `<p>토큰 3개를 쓰면 아직 없는 카드 후보 최대 3장이 나오고, 그중 1장을 골라 가집니다. 내 Repo 중 아직 받지 못한 카드가 먼저 나옵니다.</p>
          <button class="primary" data-action="draw" ${state.tokens >= 3 ? "" : "disabled"}>${

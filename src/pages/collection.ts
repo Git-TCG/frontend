@@ -96,10 +96,11 @@ export const collectionPage: Page = {
       .map((c) => {
         const note = `${SOURCE[c.source] ?? c.source} · ${STATUS[c.status ?? ""] ?? "분석 대기"}`;
         if (!c.card) {
-          return `<button type="button" class="card disabled" data-action="detail" data-id="${c.id}">
-            <span class="card-name">${h(c.full_name)}</span>
-            <span class="ability">${h(c.reason ?? "카드를 만드는 중입니다.")}</span>
-            <span class="card-note">${h(note)}</span></button>`;
+          return `<button type="button" class="tcg pending disabled" data-action="detail" data-id="${c.id}">
+            <span class="tcg-head"><span class="tcg-name">${h(c.full_name)}</span></span>
+            <span class="tcg-art"><span class="tcg-art-fallback">?</span></span>
+            <span class="tcg-text"><span class="tcg-ability">${h(c.reason ?? "카드를 만드는 중입니다.")}</span></span>
+            <span class="tcg-note">${h(note)}</span></button>`;
         }
         return cardTile(
           { ...c.card, abilityText: c.abilityText },

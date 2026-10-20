@@ -200,28 +200,28 @@ function unitTile(unit: Unit, lane: Lane, mine: boolean): string {
   if (mine && v.active === v.you && !unit.canAttack && unit.deployedTurn !== v.turn && !unit.frozen) {
     tags.push("이번 턴 공격 끝");
   }
-  const damaged = unit.durability < unit.maxDurability;
-  const body = `<span class="card-top"><span class="role">${h(c.name)}</span></span>
-    <span class="stats"><b>공격 ${unit.attack}</b> · <b class="${damaged ? "hurt" : ""}">내구 ${unit.durability}/${unit.maxDurability}</b></span>
-    <span class="ability">${h(c.abilityText ?? "")}</span>
-    ${tags.length ? `<span class="tags">${tags.map((t) => `<span>${h(t)}</span>`).join("")}</span>` : ""}`;
+  const tagHtml = tags.length ? `<span class="tags">${tags.map((t) => `<span>${h(t)}</span>`).join("")}</span>` : "";
+  const tile = (className: string, action?: string, hint?: string) =>
+    cardTile(c, {
+      compact: true,
+      live: { attack: unit.attack, durability: unit.durability, maxDurability: unit.maxDurability },
+      className: `unit ${className}`,
+      action,
+      data: action ? { lane } : undefined,
+      extra: tagHtml + (hint ? `<span class="hint">${h(hint)}</span>` : ""),
+    });
 
   // 내 프로젝트: 공격자로 고를 수 있으면 버튼
   if (mine) {
     const selectable = attacks(lane).length > 0 || !!scrapOf(lane);
     const selected = sel?.kind === "unit" && sel.lane === lane;
-    if (selectable) {
-      return `<button type="button" class="unit card ${selected ? "selected" : "playable"}" data-action="pickUnit" data-lane="${lane}">${body}</button>`;
-    }
-    return `<div class="unit card">${body}</div>`;
+    return selectable ? tile(selected ? "selected" : "playable", "pickUnit") : tile("");
   }
   // 상대 프로젝트: 공격 대상이거나 능력 대상이면 버튼
   if (isEnemyTarget(lane)) {
-    return `<button type="button" class="unit card target" data-action="hitLane" data-lane="${lane}">${body}<span class="hint">${
-      sel?.kind === "deployTarget" ? "능력 대상으로 선택" : "여기를 공격"
-    }</span></button>`;
+    return tile("target", "hitLane", sel?.kind === "deployTarget" ? "능력 대상으로 선택" : "여기를 공격");
   }
-  return `<div class="unit card">${body}</div>`;
+  return tile("");
 }
 
 function isEnemyTarget(lane: Lane): boolean {
