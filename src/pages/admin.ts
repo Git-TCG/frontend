@@ -15,6 +15,8 @@ interface PoolRow {
   reason: string | null;
 }
 
+const STATUS: Record<string, string> = { ready: "준비됨", pending: "분석 보류", error: "분석 실패" };
+
 let pool: PoolRow[] = [];
 let urlInput = "";
 
@@ -31,7 +33,7 @@ export const adminPage: Page = {
           .map(
             (p) => `<tr>
               <td><a href="${h(p.url)}" target="_blank" rel="noopener">${h(p.full_name)}</a></td>
-              <td>${h(p.status ?? "-")}${p.reason ? `<br><small>${h(p.reason)}</small>` : ""}</td>
+              <td>${h(STATUS[p.status ?? ""] ?? "분석 대기")}${p.reason ? `<br><small>${h(p.reason)}</small>` : ""}</td>
               <td>${p.active ? "게시됨" : "미게시"}</td>
               <td>${h(p.source)}</td>
               <td>${
@@ -46,12 +48,14 @@ export const adminPage: Page = {
 
     return `<section>
       <h1>관리자</h1>
+      <p class="muted">공용 풀은 Repo가 적은 사용자의 시작 카드와 발견 보상에 쓰입니다. 등록하면 분석이 시작되고, '준비됨'이 되면 [게시]해야 지급 대상이 됩니다.</p>
       <h2>Repo 등록</h2>
       <form data-submit="register">
         <input name="url" data-keep="admin-url" placeholder="https://github.com/owner/repo" value="${h(urlInput)}" size="50"/>
         <button type="submit">등록·분석</button>
       </form>
       <h2>시즌</h2>
+      <p class="muted">[다음 시즌 준비]는 모든 카드를 최신 지표로 다시 계산합니다. 작업이 끝난 뒤 [시즌 게시]를 누르면 전체 카드가 새 수치로 바뀝니다. 진행 중인 경기는 영향을 받지 않습니다.</p>
       <div class="row">
         <button data-action="prepare">다음 시즌 준비</button>
         <button data-action="activate">시즌 게시</button>

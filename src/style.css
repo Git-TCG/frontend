@@ -118,3 +118,456 @@ td {
 .lane.empty {
   color: #8a9aa0;
 }
+
+/* ---------------------------------------------------------------- 공통 */
+.brand {
+  color: #fff;
+  font-weight: bold;
+  text-decoration: none;
+}
+.who {
+  color: #d6e6ea;
+  font-size: 0.9rem;
+}
+.busy {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  background: #1d3440;
+  color: #fff;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  z-index: 10;
+}
+.warn {
+  color: #8a5300;
+}
+button.danger {
+  color: #8f2a1d;
+  border-color: #c98f86;
+}
+details summary {
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* ---------------------------------------------------------------- 시작 화면 */
+.hero p {
+  max-width: 40rem;
+}
+.steps {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.steps li {
+  display: grid;
+  grid-template-columns: 4rem 1fr auto;
+  gap: 0.8rem;
+  align-items: center;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid #e1e8ea;
+}
+.steps li p {
+  margin: 0.2rem 0 0;
+  color: #4d6168;
+}
+.steps .mark {
+  font-size: 0.8rem;
+  text-align: center;
+  padding: 0.2rem;
+  border-radius: 3px;
+  background: #eef2f3;
+  color: #6a7d83;
+}
+.steps .done .mark {
+  background: #e2f2e6;
+  color: #1f5a2e;
+}
+.steps .next {
+  background: #f4fafb;
+}
+.steps .next .mark {
+  background: #1d5a6b;
+  color: #fff;
+}
+
+/* ---------------------------------------------------------------- 카드 */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(10.5rem, 1fr));
+  gap: 0.6rem;
+  margin: 0.5rem 0;
+}
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  text-align: left;
+  border: 1px solid #b9c8cb;
+  border-radius: 6px;
+  background: #fff;
+  padding: 0.5rem;
+  font: inherit;
+  color: inherit;
+  min-height: 8rem;
+}
+button.card {
+  cursor: pointer;
+}
+.card.playable:hover {
+  border-color: #1d5a6b;
+  box-shadow: 0 0 0 2px #cfe6ec;
+}
+.card.selected {
+  border: 2px solid #1d5a6b;
+  background: #eaf5f8;
+}
+.card.disabled {
+  opacity: 0.55;
+}
+.card.disabled-soft {
+  opacity: 0.75;
+}
+.card-top {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+  font-size: 0.8rem;
+}
+.cost {
+  display: inline-grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: #1d5a6b;
+  color: #fff;
+  font-weight: bold;
+}
+.grade {
+  font-weight: bold;
+  padding: 0 0.3rem;
+  border-radius: 3px;
+  background: #eef2f3;
+}
+.grade-A,
+.grade-S,
+.grade-SS {
+  background: #fff1d6;
+}
+.role {
+  color: #4d6168;
+}
+.card-name {
+  font-weight: bold;
+}
+.stats {
+  font-size: 0.9rem;
+}
+.stats .hurt {
+  color: #a3341f;
+}
+.ability {
+  font-size: 0.8rem;
+  color: #4d6168;
+}
+.card-note {
+  font-size: 0.75rem;
+  color: #1d5a6b;
+  margin-top: auto;
+}
+.card-source {
+  font-size: 0.75rem;
+}
+.card.demo {
+  max-width: 14rem;
+  margin: 0.5rem 0;
+}
+
+/* ---------------------------------------------------------------- 덱 */
+.deck-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  align-items: center;
+  padding: 0.6rem;
+  background: #f4f7f7;
+  border-radius: 4px;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+.deck-bar.full {
+  background: #e2f2e6;
+}
+
+/* ---------------------------------------------------------------- 대전 로비 */
+.choices {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 0.6rem;
+}
+.choice {
+  display: block;
+  text-align: left;
+  border: 1px solid #b9c8cb;
+  border-radius: 6px;
+  padding: 0.7rem;
+  cursor: pointer;
+  background: #fff;
+  font: inherit;
+}
+.choice.on {
+  border: 2px solid #1d5a6b;
+  background: #eaf5f8;
+}
+.choice.off {
+  opacity: 0.6;
+  cursor: default;
+}
+.choice input {
+  margin-right: 0.4rem;
+}
+.primary-choice {
+  border: 2px solid #1d5a6b;
+}
+
+/* ---------------------------------------------------------------- 대전 */
+.turn-banner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.6rem 0.8rem;
+  border-radius: 4px;
+  background: #eef2f3;
+}
+.turn-banner.mine {
+  background: #1d5a6b;
+  color: #fff;
+}
+.turn-banner.mine a {
+  color: #fff;
+}
+.turn-banner strong {
+  font-size: 1.2rem;
+}
+.help-link {
+  margin-left: auto;
+}
+.guide {
+  background: #fffbe8;
+  border-left: 4px solid #e0b100;
+  padding: 0.5rem 0.7rem;
+  margin: 0.6rem 0;
+}
+.side {
+  border: 1px solid #d7e1e3;
+  border-radius: 6px;
+  padding: 0.5rem;
+}
+.side.opponent {
+  background: #fbf6f5;
+}
+.side.mine {
+  background: #f4f9fa;
+}
+.side-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  margin: 0.3rem 0;
+}
+.lanes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+.slot {
+  min-height: 7rem;
+  display: flex;
+}
+.slot > * {
+  flex: 1;
+}
+.empty-slot {
+  border: 1px dashed #b9c8cb;
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  color: #8a9aa0;
+  font: inherit;
+  background: transparent;
+}
+.unit {
+  min-height: 7rem;
+}
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+.tags span {
+  font-size: 0.7rem;
+  background: #eef2f3;
+  padding: 0 0.3rem;
+  border-radius: 3px;
+}
+.target {
+  border: 2px solid #c0392b !important;
+  background: #fff0ee !important;
+  cursor: pointer;
+}
+.side.mine .target,
+.empty-slot.target {
+  border-color: #2e8b57 !important;
+  background: #eaf7ef !important;
+  color: #1f5a2e;
+}
+.hint {
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: #a3341f;
+}
+.core {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 11rem;
+  font: inherit;
+  text-align: left;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  padding: 0.2rem 0.4rem;
+  background: transparent;
+}
+.bar {
+  display: block;
+  height: 0.5rem;
+  background: #e1e8ea;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.bar span {
+  display: block;
+  height: 100%;
+  background: #c0392b;
+}
+.side.mine .bar span {
+  background: #2e8b57;
+}
+.pips {
+  letter-spacing: 0.1rem;
+  color: #1d5a6b;
+}
+.divider {
+  text-align: center;
+  color: #8a9aa0;
+  font-size: 0.8rem;
+  margin: 0.4rem 0;
+}
+.hand h3 {
+  margin-bottom: 0.2rem;
+}
+.controls {
+  margin-top: 0.8rem;
+}
+.result {
+  text-align: center;
+}
+.result h1 {
+  font-size: 2.5rem;
+}
+.result.win h1 {
+  color: #1f5a2e;
+}
+.result.lose h1 {
+  color: #8f2a1d;
+}
+.result .row {
+  justify-content: center;
+}
+
+/* ---------------------------------------------------------------- 튜토리얼·도움말 */
+.dot {
+  width: 2rem;
+  padding: 0.3rem 0;
+}
+.dot.on {
+  background: #1d5a6b;
+  color: #fff;
+}
+.nav-row {
+  margin-top: 1rem;
+}
+.mini-board {
+  border: 1px solid #d7e1e3;
+  border-radius: 6px;
+  padding: 0.5rem;
+  max-width: 30rem;
+  margin: 0.6rem 0;
+}
+.mini-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.3rem;
+}
+.mini-row span {
+  border: 1px dashed #b9c8cb;
+  border-radius: 4px;
+  padding: 0.4rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: #8a9aa0;
+}
+.mini-row span.u {
+  border-style: solid;
+  color: #8f2a1d;
+  background: #fbf6f5;
+}
+.mini-row span.u.mine {
+  color: #1f5a2e;
+  background: #f4f9fa;
+}
+.mini-mid {
+  text-align: center;
+  font-size: 0.75rem;
+  color: #8a9aa0;
+  margin: 0.3rem 0;
+}
+.toc {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+}
+.help h2 {
+  border-top: 1px solid #e1e8ea;
+  padding-top: 1rem;
+  scroll-margin-top: 1rem;
+}
+.help dt {
+  font-weight: bold;
+  margin-top: 0.6rem;
+}
+.help dd {
+  margin-left: 1rem;
+  color: #4d6168;
+}
+
+@media (max-width: 640px) {
+  .steps li {
+    grid-template-columns: 3.2rem 1fr;
+  }
+  .steps li > div:last-child {
+    grid-column: 2;
+  }
+  .lanes {
+    gap: 0.25rem;
+  }
+  .card {
+    font-size: 0.85rem;
+  }
+}

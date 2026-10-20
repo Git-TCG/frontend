@@ -37,7 +37,7 @@ export const discoveryPage: Page = {
     const open = state.open
       ? `<div>
           <h2>후보 선택</h2>
-          <p>토큰을 소모해 뽑은 후보 중 하나를 고르세요.</p>
+          <p>아래 후보 중 1장을 고르세요. 고르기 전에는 새 후보를 뽑을 수 없습니다.</p>
           ${state.open.options
             .map((id) => {
               const c = optionCards[id];
@@ -49,8 +49,11 @@ export const discoveryPage: Page = {
             })
             .join("")}
         </div>`
-      : `<p>열린 발견이 없습니다. 토큰 3개로 공용·개인 해금 후보를 뽑을 수 있습니다.</p>
-         <button class="primary" data-action="draw" ${state.tokens >= 3 ? "" : "disabled"}>발견 (토큰 3)</button>`;
+      : `<p>토큰 3개를 쓰면 아직 없는 카드 후보 최대 3장이 나오고, 그중 1장을 골라 가집니다. 내 Repo 중 아직 받지 못한 카드가 먼저 나옵니다.</p>
+         <button class="primary" data-action="draw" ${state.tokens >= 3 ? "" : "disabled"}>${
+           state.tokens >= 3 ? "토큰 3개로 후보 뽑기" : `토큰이 ${3 - state.tokens}개 더 필요합니다`
+         }</button>
+         <p class="muted">토큰은 다른 플레이어와 하는 정상 대전에서 하루 첫 판마다 1개씩 받습니다. 후보를 뽑으면 고를 때까지 저장되며, 새로고침해도 바뀌지 않습니다.</p>`;
 
     return `<section>
       <h1>발견</h1>

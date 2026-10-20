@@ -24,6 +24,11 @@ export interface Page {
   load?: () => Promise<void>;
   view: () => string;
   actions?: Record<string, (el: HTMLElement) => Promise<unknown> | unknown>;
+  /**
+   * 서버를 부르지 않고 화면 상태만 바꾸는 동작(카드 선택 등). 바로 다시 그리고,
+   * 다른 작업이 진행 중이어도 무시하지 않는다.
+   */
+  local?: string[];
   /** 화면을 떠날 때 정리(타이머·소켓 등). */
   leave?: () => void;
 }
@@ -109,9 +114,15 @@ export function mount(el: HTMLElement, navigation: () => string) {
   root.addEventListener("click", (ev) => {
     const target = (ev.target as HTMLElement).closest<HTMLElement>("[data-action]");
     if (!target || !current?.actions) return;
-    const action = current.actions[target.dataset.action!];
+    const name = target.dataset.action!;
+    const action = current.actions[name];
     if (!action) return;
     ev.preventDefault();
+    if (current.local?.includes(name)) {
+      action(target);
+      render();
+      return;
+    }
     void run(() => action(target));
   });
   root.addEventListener("submit", (ev) => {
